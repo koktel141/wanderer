@@ -34,7 +34,10 @@ impl Wolf {
             self.attack_cooldown = WOLF_ATTACK_COOLDOWN;
         }
     }
-
+    pub fn reset(&mut self, x: f32, y: f32) {
+        self.position = vec2(x, y);
+        self.attack_cooldown = 0.0;
+    }
     pub fn draw(&self) {
         draw_circle(self.position.x + 16.0, self.position.y + 16.0, 16.0, RED);
 

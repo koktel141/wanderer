@@ -117,6 +117,13 @@ impl Player {
     pub fn hp(&self) -> i32 {
         self.hp
     }
+    pub fn reset(&mut self) {
+    self.position = vec2(SCREEN_WIDTH / 2.0, SCREEN_HEIGHT / 2.0);
+    self.hp = PLAYER_MAX_HP;
+    self.invincible_timer = 0.0;
+    self.state = PlayerState::Idle;
+    self.facing_left = false;
+}
 
     pub fn is_invincible(&self) -> bool {
         self.invincible_timer > 0.0
