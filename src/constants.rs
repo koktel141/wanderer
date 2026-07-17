@@ -24,3 +24,4 @@ pub const WOLF_ATTACK_DAMAGE: i32 = 10;
 pub const WOLF_ATTACK_RANGE: f32 = 30.0;
 pub const WOLF_ATTACK_COOLDOWN: f32 = 1.0;
 pub const PLAYER_INVINCIBILITY_TIME: f32 = 0.8;
+pub const WOLF_VISUAL_SCALE: f32 = 1.6;

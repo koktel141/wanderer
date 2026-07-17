@@ -17,24 +17,24 @@ pub struct Game {
 }
 
 impl Game {
-    pub async fn new() -> Self {
-        let world = World::new().await;
-        let player = Player::new().await;
-        let camera = create_camera(player.position);
+pub async fn new() -> Self {
+    let world = World::new().await;
+    let player = Player::new().await;
+    let camera = create_camera(player.position);
 
-        let wolves = WOLF_SPAWNS
-            .iter()
-            .map(|&(x, y)| Wolf::new(x, y))
-            .collect();
-
-        Self {
-            world,
-            player,
-            camera,
-            wolves,
-            state: GameState::Playing,
-        }
+    let mut wolves = Vec::new();
+    for &(x, y) in WOLF_SPAWNS.iter() {
+        wolves.push(Wolf::new(x, y).await);
     }
+
+    Self {
+        world,
+        player,
+        camera,
+        wolves,
+        state: GameState::Playing,
+    }
+}
 
     pub fn update(&mut self) {
         match self.state {

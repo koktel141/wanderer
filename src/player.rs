@@ -128,17 +128,16 @@ impl Player {
     pub fn is_invincible(&self) -> bool {
         self.invincible_timer > 0.0
     }
-    pub fn draw(&self) {
-        match self.state {
-            PlayerState::Idle => {
-                self.idle_animation.draw(self.position, self.facing_left);
-            }
-
-            PlayerState::Run => {
-                self.run_animation.draw(self.position, self.facing_left);
-            }
+pub fn draw(&self) {
+    match self.state {
+        PlayerState::Idle => {
+            self.idle_animation.draw(self.position, self.facing_left, 1.0);
+        }
+        PlayerState::Run => {
+            self.run_animation.draw(self.position, self.facing_left, 1.0);
         }
     }
+}
     pub fn rect(&self) -> Rect {
         Rect::new(self.position.x, self.position.y, PLAYER_SIZE, PLAYER_SIZE)
     }
