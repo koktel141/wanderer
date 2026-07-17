@@ -3,6 +3,9 @@ mod game;
 mod player;
 mod camera;
 mod animation;
+mod world;
+mod enemy;
+
 use game::Game;
 use macroquad::prelude::*;
 
