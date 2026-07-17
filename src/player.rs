@@ -1,5 +1,5 @@
-use macroquad::prelude::*;
 use crate::constants::*;
+use macroquad::prelude::*;
 
 pub struct Player {
     pub position: Vec2,
@@ -9,10 +9,7 @@ pub struct Player {
 impl Player {
     pub fn new() -> Self {
         Self {
-            position: vec2(
-                SCREEN_WIDTH / 2.0,
-                SCREEN_HEIGHT / 2.0,
-            ),
+            position: vec2(SCREEN_WIDTH / 2.0, SCREEN_HEIGHT / 2.0),
             speed: PLAYER_SPEED,
         }
     }
@@ -43,6 +40,9 @@ impl Player {
         }
 
         self.position += direction * self.speed * dt;
+        self.position.x = self.position.x.clamp(0.0, WORLD_WIDTH - PLAYER_SIZE);
+
+        self.position.y = self.position.y.clamp(0.0, WORLD_HEIGHT - PLAYER_SIZE);
     }
 
     pub fn draw(&self) {

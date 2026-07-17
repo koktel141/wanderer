@@ -1,6 +1,7 @@
 mod constants;
 mod game;
 mod player;
+mod camera;
 
 use game::Game;
 use macroquad::prelude::*;

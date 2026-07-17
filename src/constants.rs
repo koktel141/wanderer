@@ -5,3 +5,5 @@ pub const PLAYER_SPEED: f32 = 220.0;
 
 pub const TILE_SIZE: f32 = 32.0;
 pub const PLAYER_SIZE: f32 = 32.0;
+pub const WORLD_WIDTH: f32 = 3000.0;
+pub const WORLD_HEIGHT: f32 = 3000.0;
