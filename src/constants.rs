@@ -18,3 +18,9 @@ pub const PLAYER_SPEED: f32 = 220.0;
 //==================Wolf=====================
 // ================= Enemy =================
 pub const WOLF_SPEED: f32 = 90.0;
+// ================= Combat =================
+pub const PLAYER_MAX_HP: i32 = 100;
+pub const WOLF_ATTACK_DAMAGE: i32 = 10;
+pub const WOLF_ATTACK_RANGE: f32 = 30.0;
+pub const WOLF_ATTACK_COOLDOWN: f32 = 1.0;
+pub const PLAYER_INVINCIBILITY_TIME: f32 = 0.8;

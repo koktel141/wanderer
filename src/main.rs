@@ -5,6 +5,8 @@ mod camera;
 mod animation;
 mod world;
 mod enemy;
+mod map;
+mod tile;
 
 use game::Game;
 use macroquad::prelude::*;
