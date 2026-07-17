@@ -2,7 +2,7 @@ mod constants;
 mod game;
 mod player;
 mod camera;
-
+mod animation;
 use game::Game;
 use macroquad::prelude::*;
 
