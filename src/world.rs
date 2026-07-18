@@ -1,11 +1,14 @@
 use crate::constants::*;
 use crate::map;
+use crate::object::{ObjectType, WorldObject};
 use crate::tile::TileType;
 use macroquad::prelude::*;
 
 pub struct World {
     tiles: Vec<Vec<TileType>>,
     tileset: Texture2D,
+    objects: Vec<WorldObject>,
+    object_atlas: Texture2D,
 }
 
 impl World {
@@ -20,7 +23,58 @@ impl World {
         let tileset = load_texture("assets/maps/tileset.png").await.unwrap();
         tileset.set_filter(FilterMode::Nearest);
 
-        Self { tiles, tileset }
+        let object_atlas = load_texture("assets/objects/objects.png").await.unwrap();
+        object_atlas.set_filter(FilterMode::Nearest);
+
+        let objects = Self::scatter_objects(&tiles);
+
+        Self {
+            tiles,
+            tileset,
+            objects,
+            object_atlas,
+        }
+    }
+
+    fn scatter_objects(tiles: &[Vec<TileType>]) -> Vec<WorldObject> {
+        let mut objects = Vec::new();
+
+        let spawn_x = (SCREEN_WIDTH / 2.0 / TILE_SIZE) as i32;
+        let spawn_y = (SCREEN_HEIGHT / 2.0 / TILE_SIZE) as i32;
+        let spawn_clear_radius = 6;
+
+        for y in 0..MAP_HEIGHT {
+            for x in 0..MAP_WIDTH {
+                if tiles[y][x] != TileType::Grass {
+                    continue;
+                }
+
+                let dx = x as i32 - spawn_x;
+                let dy = y as i32 - spawn_y;
+                if dx * dx + dy * dy < spawn_clear_radius * spawn_clear_radius {
+                    continue; 
+                }
+
+                let roll = map::hash01(x as i32, y as i32, 999);
+                if roll < 0.04 {
+                    let type_roll = map::hash01(x as i32, y as i32, 1000);
+                    let object_type = if type_roll < 0.5 {
+                        ObjectType::Tree
+                    } else if type_roll < 0.8 {
+                        ObjectType::Rock
+                    } else {
+                        ObjectType::Bush
+                    };
+
+                    objects.push(WorldObject {
+                        position: vec2(x as f32 * TILE_SIZE, y as f32 * TILE_SIZE),
+                        object_type,
+                    });
+                }
+            }
+        }
+
+        objects
     }
 
     pub fn draw(&self) {
@@ -42,6 +96,23 @@ impl World {
                     },
                 );
             }
+        }
+
+        for obj in &self.objects {
+            let atlas_x = obj.object_type.atlas_index() as f32 * OBJECT_FRAME_WIDTH;
+            let draw_y = obj.position.y + TILE_SIZE - OBJECT_FRAME_HEIGHT;
+
+            draw_texture_ex(
+                &self.object_atlas,
+                obj.position.x,
+                draw_y,
+                WHITE,
+                DrawTextureParams {
+                    source: Some(Rect::new(atlas_x, 0.0, OBJECT_FRAME_WIDTH, OBJECT_FRAME_HEIGHT)),
+                    dest_size: Some(vec2(OBJECT_FRAME_WIDTH, OBJECT_FRAME_HEIGHT)),
+                    ..Default::default()
+                },
+            );
         }
     }
 
@@ -65,6 +136,17 @@ impl World {
                 }
             }
         }
+
+        for obj in &self.objects {
+            if !obj.object_type.is_solid() {
+                continue;
+            }
+            let obj_rect = Rect::new(obj.position.x, obj.position.y, TILE_SIZE, TILE_SIZE);
+            if obj_rect.overlaps(&rect) {
+                return true;
+            }
+        }
+
         false
     }
 
@@ -76,6 +158,12 @@ impl World {
                     let py = y as f32 * TILE_SIZE;
                     draw_rectangle_lines(px, py, TILE_SIZE, TILE_SIZE, 2.0, RED);
                 }
+            }
+        }
+
+        for obj in &self.objects {
+            if obj.object_type.is_solid() {
+                draw_rectangle_lines(obj.position.x, obj.position.y, TILE_SIZE, TILE_SIZE, 2.0, ORANGE);
             }
         }
     }

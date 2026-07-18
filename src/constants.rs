@@ -25,3 +25,7 @@ pub const WOLF_ATTACK_RANGE: f32 = 30.0;
 pub const WOLF_ATTACK_COOLDOWN: f32 = 1.0;
 pub const PLAYER_INVINCIBILITY_TIME: f32 = 0.8;
 pub const WOLF_VISUAL_SCALE: f32 = 1.6;
+
+// ================= Objects =================
+pub const OBJECT_FRAME_WIDTH: f32 = 64.0;  // 4  8
+pub const OBJECT_FRAME_HEIGHT: f32 = 80.0; // 6   8

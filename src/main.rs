@@ -8,6 +8,7 @@ mod enemy;
 mod map;
 mod tile;
 mod state;
+mod object;
 
 use game::Game;
 use macroquad::prelude::*;

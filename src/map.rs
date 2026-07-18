@@ -1,4 +1,4 @@
-use crate::constants::{MAP_WIDTH, MAP_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE};
+use crate::constants::{MAP_HEIGHT, MAP_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_SIZE};
 
 fn hash(x: i32, y: i32, seed: u32) -> f32 {
     let ux = x as u32;
@@ -9,11 +9,26 @@ fn hash(x: i32, y: i32, seed: u32) -> f32 {
         .wrapping_add(uy.wrapping_mul(668265263))
         .wrapping_add(seed);
 
-    h ^= h >> 13; // شیفت منطقی چون h از نوع u32 هست
+    h ^= h >> 13; 
     h = h.wrapping_mul(1274126177);
     h ^= h >> 16;
 
     (h as f32 / u32::MAX as f32) * 2.0 - 1.0
+}
+pub fn hash01(x: i32, y: i32, seed: u32) -> f32 {
+    let ux = x as u32;
+    let uy = y as u32;
+
+    let mut h = ux
+        .wrapping_mul(374761393)
+        .wrapping_add(uy.wrapping_mul(668265263))
+        .wrapping_add(seed);
+
+    h ^= h >> 13;
+    h = h.wrapping_mul(1274126177);
+    h ^= h >> 16;
+
+    h as f32 / u32::MAX as f32
 }
 
 fn smooth_noise(x: f32, y: f32, seed: u32) -> f32 {
