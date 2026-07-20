@@ -9,6 +9,8 @@ mod map;
 mod tile;
 mod state;
 mod object;
+mod quest;
+mod npc;
 
 use game::Game;
 use macroquad::prelude::*;

@@ -27,5 +27,13 @@ pub const PLAYER_INVINCIBILITY_TIME: f32 = 0.8;
 pub const WOLF_VISUAL_SCALE: f32 = 1.6;
 
 // ================= Objects =================
-pub const OBJECT_FRAME_WIDTH: f32 = 64.0;  // 4  8
-pub const OBJECT_FRAME_HEIGHT: f32 = 80.0; // 6   8
+pub const OBJECT_FRAME_WIDTH: f32 = 90.0;  // 4  8
+pub const OBJECT_FRAME_HEIGHT: f32 = 90.0; // 6   8
+
+// ================= Combat (player attack) =================
+pub const PLAYER_ATTACK_RANGE: f32 = 40.0;
+pub const WOLF_HP: i32 = 30;
+
+// ================= Quest =================
+pub const QUEST_TARGET_KILLS: u32 = 3;
+pub const NPC_INTERACT_RANGE: f32 = 50.0;

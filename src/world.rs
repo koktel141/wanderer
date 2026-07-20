@@ -37,11 +37,12 @@ impl World {
     }
 
     fn scatter_objects(tiles: &[Vec<TileType>]) -> Vec<WorldObject> {
-        let mut objects = Vec::new();
+        let mut objects: Vec<WorldObject> = Vec::new();
 
         let spawn_x = (SCREEN_WIDTH / 2.0 / TILE_SIZE) as i32;
         let spawn_y = (SCREEN_HEIGHT / 2.0 / TILE_SIZE) as i32;
         let spawn_clear_radius = 6;
+        let min_spacing_tiles = 2.0; // حداقل فاصله بین دو آبجکت، بر حسب تایل
 
         for y in 0..MAP_HEIGHT {
             for x in 0..MAP_WIDTH {
@@ -52,27 +53,41 @@ impl World {
                 let dx = x as i32 - spawn_x;
                 let dy = y as i32 - spawn_y;
                 if dx * dx + dy * dy < spawn_clear_radius * spawn_clear_radius {
-                    continue; 
+                    continue;
                 }
 
                 let roll = map::hash01(x as i32, y as i32, 999);
-                if roll < 0.04 {
-                    let type_roll = map::hash01(x as i32, y as i32, 1000);
-                    let object_type = if type_roll < 0.5 {
-                        ObjectType::Tree
-                    } else if type_roll < 0.8 {
-                        ObjectType::Rock
-                    } else {
-                        ObjectType::Bush
-                    };
-
-                    objects.push(WorldObject {
-                        position: vec2(x as f32 * TILE_SIZE, y as f32 * TILE_SIZE),
-                        object_type,
-                    });
+                if roll >= 0.04 {
+                    continue;
                 }
+
+                let candidate_pos = vec2(x as f32 * TILE_SIZE, y as f32 * TILE_SIZE);
+
+                // چک کن هیچ آبجکت دیگه‌ای تو شعاع min_spacing نباشه، وگرنه رد کن
+                let too_close = objects.iter().any(|o: &WorldObject| {
+                    o.position.distance(candidate_pos) < min_spacing_tiles * TILE_SIZE
+                });
+                if too_close {
+                    continue;
+                }
+
+                let type_roll = map::hash01(x as i32, y as i32, 1000);
+                let object_type = if type_roll < 0.5 {
+                    ObjectType::Tree
+                } else if type_roll < 0.8 {
+                    ObjectType::Rock
+                } else {
+                    ObjectType::Bush
+                };
+
+                objects.push(WorldObject {
+                    position: candidate_pos,
+                    object_type,
+                });
             }
         }
+
+        objects.sort_by(|a, b| a.position.y.partial_cmp(&b.position.y).unwrap());
 
         objects
     }
@@ -108,7 +123,12 @@ impl World {
                 draw_y,
                 WHITE,
                 DrawTextureParams {
-                    source: Some(Rect::new(atlas_x, 0.0, OBJECT_FRAME_WIDTH, OBJECT_FRAME_HEIGHT)),
+                    source: Some(Rect::new(
+                        atlas_x,
+                        0.0,
+                        OBJECT_FRAME_WIDTH,
+                        OBJECT_FRAME_HEIGHT,
+                    )),
                     dest_size: Some(vec2(OBJECT_FRAME_WIDTH, OBJECT_FRAME_HEIGHT)),
                     ..Default::default()
                 },
@@ -163,7 +183,21 @@ impl World {
 
         for obj in &self.objects {
             if obj.object_type.is_solid() {
-                draw_rectangle_lines(obj.position.x, obj.position.y, TILE_SIZE, TILE_SIZE, 2.0, ORANGE);
+                draw_rectangle_lines(
+                    obj.position.x,
+                    obj.position.y,
+                    TILE_SIZE,
+                    TILE_SIZE,
+                    2.0,
+                    ORANGE,
+                );
+
+                let label = match obj.object_type {
+                    ObjectType::Tree => "TREE",
+                    ObjectType::Rock => "ROCK",
+                    ObjectType::Bush => "BUSH",
+                };
+                draw_text(label, obj.position.x, obj.position.y - 4.0, 16.0, MAGENTA);
             }
         }
     }

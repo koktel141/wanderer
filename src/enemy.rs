@@ -1,6 +1,7 @@
 use crate::animation::Animation;
 use crate::constants::*;
 use crate::player::Player;
+use crate::world::World;
 use macroquad::prelude::*;
 
 pub struct Wolf {
@@ -9,6 +10,7 @@ pub struct Wolf {
     attack_cooldown: f32,
     animation: Animation,
     facing_left: bool,
+    hp: i32,
 }
 
 impl Wolf {
@@ -19,10 +21,11 @@ impl Wolf {
             attack_cooldown: 0.0,
             animation: Animation::new("assets/enemy/wolf_walk.png", 32.0, 32.0, 4, 0.15).await,
             facing_left: false,
+            hp: WOLF_HP,
         }
     }
 
-    pub fn update(&mut self, player: &mut Player) {
+    pub fn update(&mut self, player: &mut Player, world: &World) {
         let dt = get_frame_time();
 
         if self.attack_cooldown > 0.0 {
@@ -39,7 +42,23 @@ impl Wolf {
         }
 
         if distance > WOLF_ATTACK_RANGE {
-            self.position += direction.normalize() * self.speed * dt;
+            let velocity = direction.normalize() * self.speed * dt;
+
+            // حرکت گرگ هم مثل پلیر، محور به محور، تا با درخت/سنگ/آب برخورد کنه
+            let mut next_x = self.position;
+            next_x.x += velocity.x;
+            let rect_x = Rect::new(next_x.x, self.position.y, PLAYER_SIZE, PLAYER_SIZE);
+            if !world.check_collision(rect_x) {
+                self.position.x = next_x.x;
+            }
+
+            let mut next_y = self.position;
+            next_y.y += velocity.y;
+            let rect_y = Rect::new(self.position.x, next_y.y, PLAYER_SIZE, PLAYER_SIZE);
+            if !world.check_collision(rect_y) {
+                self.position.y = next_y.y;
+            }
+
             self.animation.update();
         } else if self.attack_cooldown <= 0.0 {
             player.take_damage(WOLF_ATTACK_DAMAGE);
@@ -48,22 +67,28 @@ impl Wolf {
     }
 
     pub fn draw(&self) {
-        self.animation
-            .draw(self.position, self.facing_left, WOLF_VISUAL_SCALE);
+        self.animation.draw(self.position, self.facing_left, WOLF_VISUAL_SCALE);
 
         if self.attack_cooldown > WOLF_ATTACK_COOLDOWN - 0.15 {
-            draw_circle_lines(
-                self.position.x + 16.0,
-                self.position.y + 16.0,
-                20.0,
-                2.0,
-                YELLOW,
-            );
+            draw_circle_lines(self.position.x + 16.0, self.position.y + 16.0, 20.0, 2.0, YELLOW);
         }
+    }
+
+    pub fn rect(&self) -> Rect {
+        Rect::new(self.position.x, self.position.y, PLAYER_SIZE, PLAYER_SIZE)
+    }
+
+    pub fn take_damage(&mut self, amount: i32) {
+        self.hp -= amount;
+    }
+
+    pub fn is_dead(&self) -> bool {
+        self.hp <= 0
     }
 
     pub fn reset(&mut self, x: f32, y: f32) {
         self.position = vec2(x, y);
         self.attack_cooldown = 0.0;
+        self.hp = WOLF_HP;
     }
 }
