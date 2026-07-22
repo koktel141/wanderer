@@ -25,11 +25,15 @@ impl Wolf {
         }
     }
 
-    pub fn update(&mut self, player: &mut Player, world: &World) {
+    pub fn update(&mut self, player: &mut Player, world: &World, aggressive: bool) {
         let dt = get_frame_time();
 
         if self.attack_cooldown > 0.0 {
             self.attack_cooldown -= dt;
+        }
+
+        if !aggressive {
+            return;
         }
 
         let direction = player.position - self.position;
@@ -44,7 +48,6 @@ impl Wolf {
         if distance > WOLF_ATTACK_RANGE {
             let velocity = direction.normalize() * self.speed * dt;
 
-            // حرکت گرگ هم مثل پلیر، محور به محور، تا با درخت/سنگ/آب برخورد کنه
             let mut next_x = self.position;
             next_x.x += velocity.x;
             let rect_x = Rect::new(next_x.x, self.position.y, PLAYER_SIZE, PLAYER_SIZE);
@@ -67,10 +70,17 @@ impl Wolf {
     }
 
     pub fn draw(&self) {
-        self.animation.draw(self.position, self.facing_left, WOLF_VISUAL_SCALE);
+        self.animation
+            .draw(self.position, self.facing_left, WOLF_VISUAL_SCALE);
 
         if self.attack_cooldown > WOLF_ATTACK_COOLDOWN - 0.15 {
-            draw_circle_lines(self.position.x + 16.0, self.position.y + 16.0, 20.0, 2.0, YELLOW);
+            draw_circle_lines(
+                self.position.x + 16.0,
+                self.position.y + 16.0,
+                20.0,
+                2.0,
+                YELLOW,
+            );
         }
     }
 

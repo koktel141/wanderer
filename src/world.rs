@@ -191,13 +191,6 @@ impl World {
                     2.0,
                     ORANGE,
                 );
-
-                let label = match obj.object_type {
-                    ObjectType::Tree => "TREE",
-                    ObjectType::Rock => "ROCK",
-                    ObjectType::Bush => "BUSH",
-                };
-                draw_text(label, obj.position.x, obj.position.y - 4.0, 16.0, MAGENTA);
             }
         }
     }

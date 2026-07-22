@@ -16,13 +16,12 @@ impl ObjectType {
         }
     }
 
-    
     pub fn is_solid(&self) -> bool {
-        !matches!(self, ObjectType::Bush)
+        matches!(self, ObjectType::Tree)
     }
 }
 
 pub struct WorldObject {
-    pub position: Vec2, 
+    pub position: Vec2,
     pub object_type: ObjectType,
 }
