@@ -4,14 +4,20 @@ use crate::enemy::Wolf;
 use crate::npc::Npc;
 use crate::player::Player;
 use crate::quest::Quest;
-use crate::state::GameState;
+use crate::state::{GameState, MenuButton};
 use crate::world::World;
 use macroquad::audio::{
     PlaySoundParams, Sound, load_sound, play_sound, play_sound_once, stop_sound,
 };
 use macroquad::prelude::*;
 
-const WOLF_SPAWNS: [(f32, f32); 3] = [(700.0, 500.0), (900.0, 300.0), (500.0, 700.0)];
+const WOLF_SPAWNS: [(f32, f32); 5] = [
+    (160.0, 280.0),
+    (240.0, 350.0),
+    (150.0, 330.0),
+    (220.0, 260.0),
+    (190.0, 370.0),
+];
 
 pub struct Game {
     player: Player,
@@ -29,6 +35,8 @@ pub struct Game {
     talking: bool,
     dialogue_index: usize,
     quest_banner_timer: f32,
+    logo: Texture2D,
+    has_save: bool,
 }
 
 impl Game {
@@ -36,6 +44,8 @@ impl Game {
         let world = World::new().await;
         let player = Player::new().await;
         let camera = create_camera(player.position);
+        let logo = load_texture("assets/ui/wanderer_logo.png").await.unwrap();
+        logo.set_filter(FilterMode::Nearest);
 
         let mut wolves = Vec::new();
         for &(x, y) in WOLF_SPAWNS.iter() {
@@ -67,37 +77,44 @@ impl Game {
             talking: false,
             dialogue_index: 0,
             quest_banner_timer: 0.0,
+            logo,
+            has_save: false,
         }
     }
 
     pub fn update(&mut self) {
-        if !self.music_started {
-            play_sound(
-                &self.menu_theme,
-                PlaySoundParams {
-                    looped: true,
-                    volume: 0.5,
-                },
-            );
-            self.music_started = true;
-        }
-
         if self.quest_banner_timer > 0.0 {
             self.quest_banner_timer -= get_frame_time();
         }
 
         match self.state {
             GameState::MainMenu => {
-                if is_key_pressed(KeyCode::Enter) {
-                    stop_sound(&self.menu_theme);
-                    play_sound(
-                        &self.forest_ambience,
-                        PlaySoundParams {
-                            looped: true,
-                            volume: 0.4,
-                        },
-                    );
-                    self.state = GameState::Playing;
+                let mouse_pos: Vec2 = mouse_position().into();
+                if is_mouse_button_pressed(MouseButton::Left) {
+                    for (i, (button, _)) in Self::menu_buttons().iter().enumerate() {
+                        let rect = Self::button_rect(i);
+                        if rect.contains(mouse_pos) {
+                            match button {
+                                MenuButton::NewGame => {
+                                    stop_sound(&self.menu_theme);
+                                    play_sound(
+                                        &self.forest_ambience,
+                                        PlaySoundParams {
+                                            looped: true,
+                                            volume: 0.4,
+                                        },
+                                    );
+                                    self.state = GameState::Playing;
+                                }
+                                MenuButton::Continue => if self.has_save {},
+                                MenuButton::Options => {}
+                                MenuButton::Credits => {}
+                                MenuButton::Exit => {
+                                    std::process::exit(0);
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -113,7 +130,11 @@ impl Game {
                     }
                     return;
                 }
-
+                if is_mouse_button_pressed(MouseButton::Left) {
+                    let (mouse_x, mouse_y) = mouse_position();
+                    let world_pos = self.camera.screen_to_world(vec2(mouse_x, mouse_y));
+                    println!("World coords: ({:.0}, {:.0})", world_pos.x, world_pos.y);
+                }
                 if is_key_pressed(KeyCode::E) && self.npc.is_player_nearby(self.player.position) {
                     self.talking = true;
                     self.dialogue_index = 0;
@@ -160,6 +181,12 @@ impl Game {
                     self.quest_banner_timer = 3.0;
                 }
 
+                if is_mouse_button_pressed(MouseButton::Left) {
+                    let (mouse_x, mouse_y) = mouse_position();
+                    let world_pos = self.camera.screen_to_world(vec2(mouse_x, mouse_y));
+                    println!("World coords: ({:.0}, {:.0})", world_pos.x, world_pos.y);
+                }
+
                 self.camera.target = self.player.position;
 
                 if !self.player.is_alive() {
@@ -191,52 +218,41 @@ impl Game {
 
     pub fn draw(&self) {
         if self.state == GameState::MainMenu {
-            clear_background(Color::new(0.05, 0.05, 0.08, 1.0));
+            clear_background(Color::new(0.04, 0.05, 0.06, 1.0));
 
-            draw_text(
-                "WANDERER",
-                SCREEN_WIDTH / 2.0 - 150.0,
-                SCREEN_HEIGHT / 2.0 - 100.0,
+            let logo_size = 220.0;
+            draw_texture_ex(
+                &self.logo,
+                SCREEN_WIDTH / 2.0 - logo_size / 2.0,
                 60.0,
-                GOLD,
-            );
-            draw_text(
-                "A tiny adventure in the woods",
-                SCREEN_WIDTH / 2.0 - 160.0,
-                SCREEN_HEIGHT / 2.0 - 55.0,
-                24.0,
                 WHITE,
+                DrawTextureParams {
+                    dest_size: Some(vec2(logo_size, logo_size)),
+                    ..Default::default()
+                },
             );
 
-            draw_text(
-                "WASD - Move",
-                SCREEN_WIDTH / 2.0 - 90.0,
-                SCREEN_HEIGHT / 2.0 + 10.0,
-                20.0,
-                GRAY,
-            );
-            draw_text(
-                "SPACE - Attack",
-                SCREEN_WIDTH / 2.0 - 90.0,
-                SCREEN_HEIGHT / 2.0 + 35.0,
-                20.0,
-                GRAY,
-            );
-            draw_text(
-                "E - Talk to NPC",
-                SCREEN_WIDTH / 2.0 - 90.0,
-                SCREEN_HEIGHT / 2.0 + 60.0,
-                20.0,
-                GRAY,
-            );
+            draw_text("WANDERER", SCREEN_WIDTH / 2.0 - 95.0, 310.0, 42.0, GOLD);
+            draw_text("2D RPG GAME", SCREEN_WIDTH / 2.0 - 65.0, 335.0, 20.0, GRAY);
 
-            draw_text(
-                "Press ENTER to start",
-                SCREEN_WIDTH / 2.0 - 130.0,
-                SCREEN_HEIGHT / 2.0 + 110.0,
-                28.0,
-                YELLOW,
-            );
+            let mouse_pos: Vec2 = mouse_position().into();
+            for (i, (_, label)) in Self::menu_buttons().iter().enumerate() {
+                let rect = Self::button_rect(i);
+                let hovered = rect.contains(mouse_pos);
+
+                let bg_color = if hovered {
+                    Color::new(0.25, 0.35, 0.22, 1.0)
+                } else {
+                    Color::new(0.12, 0.14, 0.10, 1.0)
+                };
+
+                draw_rectangle(rect.x, rect.y, rect.w, rect.h, bg_color);
+                draw_rectangle_lines(rect.x, rect.y, rect.w, rect.h, 2.0, GOLD);
+
+                let text_color = if hovered { YELLOW } else { WHITE };
+                draw_text(label, rect.x + 25.0, rect.y + 32.0, 24.0, text_color);
+            }
+
             return;
         }
 
@@ -341,5 +357,27 @@ impl Game {
                 WHITE,
             );
         }
+    }
+    fn menu_buttons() -> Vec<(MenuButton, &'static str)> {
+        vec![
+            (MenuButton::NewGame, "New Game"),
+            (MenuButton::Continue, "Continue"),
+            (MenuButton::Options, "Options"),
+            (MenuButton::Credits, "Credits"),
+            (MenuButton::Exit, "Exit Game"),
+        ]
+    }
+
+    fn button_rect(index: usize) -> Rect {
+        let width = 260.0;
+        let height = 48.0;
+        let spacing = 14.0;
+        let start_y = SCREEN_HEIGHT / 2.0 - 40.0;
+        Rect::new(
+            SCREEN_WIDTH / 2.0 - width / 2.0,
+            start_y + index as f32 * (height + spacing),
+            width,
+            height,
+        )
     }
 }

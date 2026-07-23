@@ -8,13 +8,15 @@ pub const TILE_SIZE: f32 = 32.0;
 pub const MAP_WIDTH: usize = 100;
 pub const MAP_HEIGHT: usize = 100;
 
-pub const WORLD_WIDTH: f32 = MAP_WIDTH as f32 * TILE_SIZE;
-pub const WORLD_HEIGHT: f32 = MAP_HEIGHT as f32 * TILE_SIZE;
-
+pub const WORLD_WIDTH: f32 = 1254.0;
+pub const WORLD_HEIGHT: f32 = 1254.0;
 // ================= Player =================
 
 pub const PLAYER_SIZE: f32 = 32.0;
 pub const PLAYER_SPEED: f32 = 220.0;
+
+pub const PLAYER_SPAWN_X: f32 = 970.0;
+pub const PLAYER_SPAWN_Y: f32 = 640.0;
 //==================Wolf=====================
 // ================= Enemy =================
 pub const WOLF_SPEED: f32 = 90.0;
@@ -27,7 +29,7 @@ pub const PLAYER_INVINCIBILITY_TIME: f32 = 0.8;
 pub const WOLF_VISUAL_SCALE: f32 = 1.6;
 
 // ================= Objects =================
-pub const OBJECT_FRAME_WIDTH: f32 = 90.0;  // 4  8
+pub const OBJECT_FRAME_WIDTH: f32 = 90.0; // 4  8
 pub const OBJECT_FRAME_HEIGHT: f32 = 90.0; // 6   8
 
 // ================= Combat (player attack) =================

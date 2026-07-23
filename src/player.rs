@@ -23,7 +23,7 @@ pub struct Player {
 impl Player {
     pub async fn new() -> Self {
         Self {
-            position: vec2(SCREEN_WIDTH / 2.0, SCREEN_HEIGHT / 2.0),
+            position: vec2(PLAYER_SPAWN_X, PLAYER_SPAWN_Y),
             facing_left: false,
             state: PlayerState::Idle,
             hp: PLAYER_MAX_HP,
@@ -118,26 +118,28 @@ impl Player {
         self.hp
     }
     pub fn reset(&mut self) {
-    self.position = vec2(SCREEN_WIDTH / 2.0, SCREEN_HEIGHT / 2.0);
-    self.hp = PLAYER_MAX_HP;
-    self.invincible_timer = 0.0;
-    self.state = PlayerState::Idle;
-    self.facing_left = false;
-}
+        self.position = vec2(PLAYER_SPAWN_X, PLAYER_SPAWN_Y);
+        self.hp = PLAYER_MAX_HP;
+        self.invincible_timer = 0.0;
+        self.state = PlayerState::Idle;
+        self.facing_left = false;
+    }
 
     pub fn is_invincible(&self) -> bool {
         self.invincible_timer > 0.0
     }
-pub fn draw(&self) {
-    match self.state {
-        PlayerState::Idle => {
-            self.idle_animation.draw(self.position, self.facing_left, 1.0);
-        }
-        PlayerState::Run => {
-            self.run_animation.draw(self.position, self.facing_left, 1.0);
+    pub fn draw(&self) {
+        match self.state {
+            PlayerState::Idle => {
+                self.idle_animation
+                    .draw(self.position, self.facing_left, 1.0);
+            }
+            PlayerState::Run => {
+                self.run_animation
+                    .draw(self.position, self.facing_left, 1.0);
+            }
         }
     }
-}
     pub fn rect(&self) -> Rect {
         Rect::new(self.position.x, self.position.y, PLAYER_SIZE, PLAYER_SIZE)
     }

@@ -4,3 +4,12 @@ pub enum GameState {
     Playing,
     GameOver,
 }
+
+#[derive(PartialEq, Clone, Copy)]
+pub enum MenuButton {
+    NewGame,
+    Continue,
+    Options,
+    Credits,
+    Exit,
+}
