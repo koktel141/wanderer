@@ -50,14 +50,24 @@ impl Wolf {
 
             let mut next_x = self.position;
             next_x.x += velocity.x;
-            let rect_x = Rect::new(next_x.x, self.position.y, PLAYER_SIZE, PLAYER_SIZE);
+            let rect_x = Rect::new(
+                next_x.x,
+                self.position.y,
+                WOLF_HITBOX_SIZE,
+                WOLF_HITBOX_SIZE,
+            );
             if !world.check_collision(rect_x) {
                 self.position.x = next_x.x;
             }
 
             let mut next_y = self.position;
             next_y.y += velocity.y;
-            let rect_y = Rect::new(self.position.x, next_y.y, PLAYER_SIZE, PLAYER_SIZE);
+            let rect_y = Rect::new(
+                self.position.x,
+                next_y.y,
+                WOLF_HITBOX_SIZE,
+                WOLF_HITBOX_SIZE,
+            );
             if !world.check_collision(rect_y) {
                 self.position.y = next_y.y;
             }

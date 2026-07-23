@@ -5,11 +5,9 @@ mod enemy;
 mod game;
 mod map;
 mod npc;
-mod object;
 mod player;
 mod quest;
 mod state;
-mod tile;
 mod world;
 
 use game::Game;

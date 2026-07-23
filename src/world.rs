@@ -18,7 +18,7 @@ impl World {
         let border = 110.0;
         obstacles.push(Rect::new(0.0, 0.0, WORLD_WIDTH, border));
         obstacles.push(Rect::new(0.0, WORLD_HEIGHT - border, WORLD_WIDTH, border));
-        obstacles.push(Rect::new(0.0, 0.0, border, WORLD_HEIGHT)); // چپ
+        obstacles.push(Rect::new(0.0, 0.0, border, WORLD_HEIGHT));
         obstacles.push(Rect::new(WORLD_WIDTH - border, 0.0, border, WORLD_HEIGHT));
 
         let river_points = [
@@ -36,7 +36,7 @@ impl World {
             (462.0, 969.0),
             //(421.0, 1010.0),
         ];
-        let river_tile = 120.0;
+        let river_tile = 90.0;
         for &(px, py) in river_points.iter() {
             obstacles.push(Rect::new(
                 px - river_tile / 1.5,
@@ -59,7 +59,7 @@ impl World {
         let wall_thickness = 20.0;
         let door_width = 40.0;
 
-        obstacles.push(Rect::new(ruin_x, ruin_y, ruin_w, wall_thickness)); // دیوار بالا
+        obstacles.push(Rect::new(ruin_x, ruin_y, ruin_w, wall_thickness)); 
         obstacles.push(Rect::new(
             ruin_x,
             ruin_y + ruin_h - wall_thickness,

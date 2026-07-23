@@ -32,6 +32,11 @@ impl Animation {
         }
     }
 
+    pub fn reset(&mut self) {
+        self.current_frame = 0;
+        self.timer = 0.0;
+    }
+
     pub fn update(&mut self) {
         self.timer += get_frame_time();
 
@@ -41,26 +46,26 @@ impl Animation {
         }
     }
 
-pub fn draw(&self, position: Vec2, flip_x: bool, scale: f32) {
-    let width = self.frame_width * scale;
-    let height = self.frame_height * scale;
+    pub fn draw(&self, position: Vec2, flip_x: bool, scale: f32) {
+        let width = self.frame_width * scale;
+        let height = self.frame_height * scale;
 
-    draw_texture_ex(
-        &self.texture,
-        position.x,
-        position.y,
-        WHITE,
-        DrawTextureParams {
-            source: Some(Rect {
-                x: self.current_frame as f32 * self.frame_width,
-                y: 0.0,
-                w: self.frame_width,
-                h: self.frame_height,
-            }),
-            dest_size: Some(vec2(width, height)),
-            flip_x,
-            ..Default::default()
-        },
-    );
-}
+        draw_texture_ex(
+            &self.texture,
+            position.x,
+            position.y,
+            WHITE,
+            DrawTextureParams {
+                source: Some(Rect {
+                    x: self.current_frame as f32 * self.frame_width,
+                    y: 0.0,
+                    w: self.frame_width,
+                    h: self.frame_height,
+                }),
+                dest_size: Some(vec2(width, height)),
+                flip_x,
+                ..Default::default()
+            },
+        );
+    }
 }

@@ -57,7 +57,7 @@ impl Game {
         let hit_sound = load_sound("assets/sounds/hit.wav").await.unwrap();
         let complete_sound = load_sound("assets/sounds/complete.wav").await.unwrap();
         let menu_theme = load_sound("assets/sounds/menu_theme.wav").await.unwrap();
-        let forest_ambience = load_sound("assets/sounds/forest_ambience.wav")
+        let forest_ambience = load_sound("assets/sounds/Forest-wind-in-the-trees(chosic.com).wav")
             .await
             .unwrap();
 
@@ -148,6 +148,7 @@ impl Game {
                 }
 
                 if is_key_pressed(KeyCode::Space) {
+                    self.player.trigger_attack();
                     let player_rect = self.player.rect();
                     for wolf in self.wolves.iter_mut() {
                         if wolf.rect().overlaps(&Rect::new(
@@ -361,9 +362,9 @@ impl Game {
     fn menu_buttons() -> Vec<(MenuButton, &'static str)> {
         vec![
             (MenuButton::NewGame, "New Game"),
-            (MenuButton::Continue, "Continue"),
-            (MenuButton::Options, "Options"),
-            (MenuButton::Credits, "Credits"),
+            //(MenuButton::Continue, "Continue"),
+            //(MenuButton::Options, "Options"),
+            //(MenuButton::Credits, "Credits"),
             (MenuButton::Exit, "Exit Game"),
         ]
     }
