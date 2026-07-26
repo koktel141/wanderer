@@ -89,6 +89,17 @@ impl Game {
 
         match self.state {
             GameState::MainMenu => {
+                if !self.music_started {
+                    play_sound(
+                        &self.menu_theme,
+                        PlaySoundParams {
+                            looped: true,
+                            volume: 0.5,
+                        },
+                    );
+                    self.music_started = true;
+                }
+
                 let mouse_pos: Vec2 = mouse_position().into();
                 if is_mouse_button_pressed(MouseButton::Left) {
                     for (i, (button, _)) in Self::menu_buttons().iter().enumerate() {
@@ -259,7 +270,6 @@ impl Game {
 
         set_camera(&self.camera);
         self.world.draw();
-        self.world.draw_colliders();
         self.player.draw();
         self.npc.draw();
 
