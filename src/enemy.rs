@@ -11,10 +11,15 @@ pub struct Wolf {
     animation: Animation,
     facing_left: bool,
     hp: i32,
+
+    approach_offset: Vec2,
 }
 
 impl Wolf {
-    pub async fn new(x: f32, y: f32) -> Self {
+    pub async fn new(x: f32, y: f32, index: usize, total: usize) -> Self {
+        let angle = (index as f32 / total.max(1) as f32) * std::f32::consts::TAU;
+        let approach_offset = vec2(angle.cos(), angle.sin()) * WOLF_APPROACH_RADIUS;
+
         Self {
             position: vec2(x, y),
             speed: WOLF_SPEED,
@@ -22,10 +27,17 @@ impl Wolf {
             animation: Animation::new("assets/enemy/wolf_walk.png", 32.0, 32.0, 4, 0.15).await,
             facing_left: false,
             hp: WOLF_HP,
+            approach_offset,
         }
     }
 
-    pub fn update(&mut self, player: &mut Player, world: &World, aggressive: bool) {
+    pub fn update(
+        &mut self,
+        player: &mut Player,
+        world: &World,
+        aggressive: bool,
+        avoidance: Vec2,
+    ) {
         let dt = get_frame_time();
 
         if self.attack_cooldown > 0.0 {
@@ -36,17 +48,27 @@ impl Wolf {
             return;
         }
 
-        let direction = player.position - self.position;
-        let distance = direction.length();
+        let to_player = player.position - self.position;
+        let distance = to_player.length();
 
-        if direction.x < 0.0 {
+        if to_player.x < 0.0 {
             self.facing_left = true;
-        } else if direction.x > 0.0 {
+        } else if to_player.x > 0.0 {
             self.facing_left = false;
         }
 
         if distance > WOLF_ATTACK_RANGE {
-            let velocity = direction.normalize() * self.speed * dt;
+            let target = player.position + self.approach_offset;
+            let mut direction = target - self.position;
+            if direction.length() > 0.0 {
+                direction = direction.normalize();
+            }
+            direction += avoidance * WOLF_SEPARATION_STRENGTH;
+            if direction.length() > 0.0 {
+                direction = direction.normalize();
+            }
+
+            let velocity = direction * self.speed * dt;
 
             let mut next_x = self.position;
             next_x.x += velocity.x;

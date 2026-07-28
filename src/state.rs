@@ -8,8 +8,8 @@ pub enum GameState {
 #[derive(PartialEq, Clone, Copy)]
 pub enum MenuButton {
     NewGame,
-    Continue,
-    Options,
-    Credits,
+    //Continue,
+    //Options,
+    //Credits,
     Exit,
 }

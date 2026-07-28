@@ -106,7 +106,6 @@ impl Player {
             self.invincible_timer -= dt;
         }
 
-        // Hurt has priority: freeze movement/attack while playing the hurt animation
         if self.hurt_timer > 0.0 {
             self.hurt_timer -= dt;
             self.hurt_animation.update();
@@ -200,7 +199,6 @@ impl Player {
     }
 
     pub fn trigger_attack(&mut self) {
-        // don't let a new attack interrupt getting hurt
         if self.hurt_timer > 0.0 {
             return;
         }

@@ -46,9 +46,9 @@ impl World {
             ));
         }
         obstacles.push(Rect::new(960.0, 230.0, 220.0, 190.0)); //farm
-        obstacles.push(Rect::new(1030.0, 560.0, 100.0, 60.0)); //
-        obstacles.push(Rect::new(730.0, 760.0, 220.0, 180.0)); //house
 
+        obstacles.push(Rect::new(730.0, 760.0, 220.0, 180.0)); //house
+        obstacles.push(Rect::new(1030.0, 560.0, 100.0, 60.0)); //
         obstacles.push(Rect::new(1044.0, 695.0, 51.0, 26.0));
         obstacles.push(Rect::new(560.0, 130.0, 140.0, 180.0));
 
@@ -59,27 +59,27 @@ impl World {
         let wall_thickness = 20.0;
         let door_width = 40.0;
 
-        obstacles.push(Rect::new(ruin_x, ruin_y, ruin_w, wall_thickness)); 
-        obstacles.push(Rect::new(
-            ruin_x,
-            ruin_y + ruin_h - wall_thickness,
-            ruin_w,
-            wall_thickness,
-        ));
+        obstacles.push(Rect::new(ruin_x, ruin_y, ruin_w, wall_thickness));
         obstacles.push(Rect::new(ruin_x, ruin_y, wall_thickness, ruin_h));
-
-        let door_start = ruin_y + ruin_h / 2.0 - door_width / 2.0;
         obstacles.push(Rect::new(
             ruin_x + ruin_w - wall_thickness,
             ruin_y,
             wall_thickness,
-            door_start - ruin_y,
+            ruin_h,
+        ));
+
+        let door_start = ruin_x + ruin_w / 2.0 - door_width / 2.0;
+        obstacles.push(Rect::new(
+            ruin_x,
+            ruin_y + ruin_h - wall_thickness,
+            door_start - ruin_x,
+            wall_thickness,
         ));
         obstacles.push(Rect::new(
-            ruin_x + ruin_w - wall_thickness,
             door_start + door_width,
+            ruin_y + ruin_h - wall_thickness,
+            ruin_x + ruin_w - (door_start + door_width),
             wall_thickness,
-            ruin_y + ruin_h - (door_start + door_width),
         ));
 
         Self {

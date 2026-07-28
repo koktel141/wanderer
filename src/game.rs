@@ -48,8 +48,8 @@ impl Game {
         logo.set_filter(FilterMode::Nearest);
 
         let mut wolves = Vec::new();
-        for &(x, y) in WOLF_SPAWNS.iter() {
-            wolves.push(Wolf::new(x, y).await);
+        for (i, &(x, y)) in WOLF_SPAWNS.iter().enumerate() {
+            wolves.push(Wolf::new(x, y, i, WOLF_SPAWNS.len()).await);
         }
 
         let npc = Npc::new(player.position.x + 150.0, player.position.y).await;
@@ -94,7 +94,7 @@ impl Game {
                         &self.menu_theme,
                         PlaySoundParams {
                             looped: true,
-                            volume: 0.5,
+                            volume: 0.05,
                         },
                     );
                     self.music_started = true;
@@ -117,9 +117,9 @@ impl Game {
                                     );
                                     self.state = GameState::Playing;
                                 }
-                                MenuButton::Continue => if self.has_save {},
-                                MenuButton::Options => {}
-                                MenuButton::Credits => {}
+                                //MenuButton::Continue => if self.has_save {},
+                                //MenuButton::Options => {}
+                                //MenuButton::Credits => {}
                                 MenuButton::Exit => {
                                     std::process::exit(0);
                                 }
@@ -154,8 +154,26 @@ impl Game {
 
                 self.player.update(&self.world);
 
-                for wolf in self.wolves.iter_mut() {
-                    wolf.update(&mut self.player, &self.world, self.quest.is_active());
+                let wolf_positions: Vec<Vec2> = self.wolves.iter().map(|w| w.position).collect();
+
+                for (i, wolf) in self.wolves.iter_mut().enumerate() {
+                    let mut avoidance = Vec2::ZERO;
+                    for (j, &other_pos) in wolf_positions.iter().enumerate() {
+                        if i == j {
+                            continue;
+                        }
+                        let diff = wolf.position - other_pos;
+                        let dist = diff.length();
+                        if dist > 0.0 && dist < WOLF_SEPARATION_RADIUS {
+                            avoidance += diff.normalize() * (WOLF_SEPARATION_RADIUS - dist);
+                        }
+                    }
+                    wolf.update(
+                        &mut self.player,
+                        &self.world,
+                        self.quest.is_active(),
+                        avoidance,
+                    );
                 }
 
                 if is_key_pressed(KeyCode::Space) {

@@ -23,7 +23,6 @@ fn window_conf() -> Conf {
     let icon_big: [u8; 64 * 64 * 4] = include_bytes!("../assets/icon/icon_64.rgba")[..]
         .try_into()
         .unwrap();
-
     Conf {
         window_title: "Wanderer".to_string(),
         window_width: constants::SCREEN_WIDTH as i32,

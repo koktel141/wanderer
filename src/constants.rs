@@ -24,6 +24,9 @@ pub const PLAYER_MAX_HP: i32 = 100;
 // ================= Enemy =================
 pub const WOLF_SPEED: f32 = 90.0;
 pub const WOLF_HITBOX_SIZE: f32 = 10.0;
+pub const WOLF_APPROACH_RADIUS: f32 = 45.0;
+pub const WOLF_SEPARATION_RADIUS: f32 = 28.0;
+pub const WOLF_SEPARATION_STRENGTH: f32 = 1.9;
 // ================= Combat =================
 
 pub const WOLF_ATTACK_DAMAGE: i32 = 10;
