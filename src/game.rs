@@ -9,6 +9,7 @@ use crate::world::World;
 use macroquad::audio::{
     PlaySoundParams, Sound, load_sound, play_sound, play_sound_once, stop_sound,
 };
+use macroquad::input::KeyCode::{Escape, M};
 use macroquad::prelude::*;
 
 const WOLF_SPAWNS: [(f32, f32); 5] = [
@@ -83,12 +84,63 @@ impl Game {
     }
 
     pub fn update(&mut self) {
+        if let Some(key) = get_last_key_pressed() {
+            println!("{:?}", key);
+        }
         if self.quest_banner_timer > 0.0 {
             self.quest_banner_timer -= get_frame_time();
         }
 
         match self.state {
+            GameState::Paused => {
+                let mouse_pos: Vec2 = mouse_position().into();
+
+                if is_key_pressed(Escape) {
+                    self.state = GameState::Playing;
+                    return;
+                }
+
+                if is_mouse_button_pressed(MouseButton::Left) {
+                    let continue_rect = Rect::new(
+                        SCREEN_WIDTH / 2.0 - 130.0,
+                        SCREEN_HEIGHT / 2.0 - 20.0,
+                        260.0,
+                        50.0,
+                    );
+
+                    let exit_rect = Rect::new(
+                        SCREEN_WIDTH / 2.0 - 130.0,
+                        SCREEN_HEIGHT / 2.0 + 50.0,
+                        260.0,
+                        50.0,
+                    );
+
+                    if continue_rect.contains(mouse_pos) {
+                        self.state = GameState::Playing;
+                    }
+
+                    if exit_rect.contains(mouse_pos) {
+                        stop_sound(&self.forest_ambience);
+
+                        play_sound(
+                            &self.menu_theme,
+                            PlaySoundParams {
+                                looped: true,
+                                volume: 0.05,
+                            },
+                        );
+
+                        self.state = GameState::MainMenu;
+                    }
+                }
+            }
+
             GameState::MainMenu => {
+                if is_mouse_button_pressed(MouseButton::Left) {
+                    let (mouse_x, mouse_y) = mouse_position();
+                    let world_pos = self.camera.screen_to_world(vec2(mouse_x, mouse_y));
+                    println!("World coords: ({:.0}, {:.0})", world_pos.x, world_pos.y);
+                }
                 if !self.music_started {
                     play_sound(
                         &self.menu_theme,
@@ -130,6 +182,11 @@ impl Game {
             }
 
             GameState::Playing => {
+                if is_key_pressed(Escape) {
+                    println!("Changing to Paused");
+                    self.state = GameState::Paused;
+                    return;
+                }
                 if self.talking {
                     if is_key_pressed(KeyCode::E) {
                         self.dialogue_index += 1;
@@ -153,7 +210,7 @@ impl Game {
                 }
 
                 self.player.update(&self.world);
-
+                let player_hp_before_wolves = self.player.hp();
                 let wolf_positions: Vec<Vec2> = self.wolves.iter().map(|w| w.position).collect();
 
                 for (i, wolf) in self.wolves.iter_mut().enumerate() {
@@ -174,6 +231,9 @@ impl Game {
                         self.quest.is_active(),
                         avoidance,
                     );
+                }
+                if self.player.hp() < player_hp_before_wolves {
+                    play_sound_once(&self.hit_sound);
                 }
 
                 if is_key_pressed(KeyCode::Space) {
@@ -211,11 +271,11 @@ impl Game {
                     self.quest_banner_timer = 3.0;
                 }
 
-                if is_mouse_button_pressed(MouseButton::Left) {
-                    let (mouse_x, mouse_y) = mouse_position();
-                    let world_pos = self.camera.screen_to_world(vec2(mouse_x, mouse_y));
-                    println!("World coords: ({:.0}, {:.0})", world_pos.x, world_pos.y);
-                }
+                // if is_mouse_button_pressed(MouseButton::Left) {
+                //     let (mouse_x, mouse_y) = mouse_position();
+                //     let world_pos = self.camera.screen_to_world(vec2(mouse_x, mouse_y));
+                //     println!("World coords: ({:.0}, {:.0})", world_pos.x, world_pos.y);
+                // }
 
                 self.camera.target = self.player.position;
 
@@ -247,6 +307,14 @@ impl Game {
     }
 
     pub fn draw(&self) {
+        match self.state {
+            GameState::Paused => {
+                clear_background(BLACK);
+                draw_text("PAUSED", 300.0, 300.0, 50.0, WHITE);
+                return;
+            }
+            _ => {}
+        }
         if self.state == GameState::MainMenu {
             clear_background(Color::new(0.04, 0.05, 0.06, 1.0));
 

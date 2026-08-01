@@ -3,6 +3,7 @@ pub enum GameState {
     MainMenu,
     Playing,
     GameOver,
+    Paused,
 }
 
 #[derive(PartialEq, Clone, Copy)]
